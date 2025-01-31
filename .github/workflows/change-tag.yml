@@ -3,8 +3,8 @@ name: Deploy Updated Apps
 on:
   push:
     branches:
-      - master
-      - test-deployment
+      - main
+  
     paths:
       - 'apps/**'
       - 'submodules/**'
@@ -23,7 +23,7 @@ jobs:
 
       - name: Get changed apps
         run: |
-          BASE_BRANCH=$(git merge-base origin/master HEAD)
+          BASE_BRANCH=$(git merge-base origin/main HEAD)
           APPS=$(git diff --name-only $BASE_BRANCH HEAD | grep -E '^apps/|^submodules/' | cut -d '/' -f2 | sort -u | jq -R -s -c 'split("\n")[:-1]')
           echo "Detected changed apps: $APPS"
           echo "APPS=$APPS" >> $GITHUB_ENV
@@ -53,5 +53,5 @@ jobs:
           createPR: true 
           message: "Update image tag for ${{ matrix.app }} to ${{ env.SHA }}"
           token: ${{ secrets.GITHUB_TOKEN }} 
-          targetBranch: test-deployment
+          targetBranch: main
    
