@@ -43,7 +43,8 @@ jobs:
         id: vars
         run: echo "SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-    
+      - name: Debug github token
+        run: echo ${{ secrets.GITHUB_TOKEN }}
     
       - name: Update kustomization.yml using fjogeleit/yaml-update-action
         uses: fjogeleit/yaml-update-action@main
