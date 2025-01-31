@@ -42,7 +42,8 @@ jobs:
         id: vars
         run: echo "SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-    
+      - name: Debug github token
+        run: echo ${{ secrets.GITHUB_TOKEN }}
     
       - name: Update kustomization.yml using fjogeleit/yaml-update-action
         uses: fjogeleit/yaml-update-action@main
@@ -50,8 +51,9 @@ jobs:
           valueFile: "k8s/overlays/prod/kustomization.yml"
           propertyPath: "images[?(@.name=='345594578285.dkr.ecr.eu-west-1.amazonaws.com/airwayz/${{ matrix.app }}')].newTag"
           value: ${{ env.SHA }}
-          createPR: true 
+          commitChange: true
           message: "Update image tag for ${{ matrix.app }} to ${{ env.SHA }}"
           token: ${{ secrets.GITHUB_TOKEN }} 
           targetBranch: main
-   
+          masterBranchName: main
+          branch: main
