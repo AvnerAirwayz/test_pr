@@ -56,4 +56,4 @@ jobs:
           message: "Update image tag for ${{ matrix.app }} to ${{ env.SHA }}"
           token: ${{ secrets.GITHUB_TOKEN }} 
           targetBranch: test-deployment
-   
+          masterBranchName: main
