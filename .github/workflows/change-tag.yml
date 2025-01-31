@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - test-deployment
   
     paths:
       - 'apps/**'
@@ -53,5 +54,5 @@ jobs:
           createPR: true 
           message: "Update image tag for ${{ matrix.app }} to ${{ env.SHA }}"
           token: ${{ secrets.GITHUB_TOKEN }} 
-          targetBranch: main
+          targetBranch: test-deployment
    
