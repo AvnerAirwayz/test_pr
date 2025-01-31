@@ -1,0 +1,57 @@
+name: Deploy Updated Apps
+
+on:
+  push:
+    branches:
+      - master
+      - test-deployment
+    paths:
+      - 'apps/**'
+      - 'submodules/**'
+     
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      changed_apps: ${{ env.APPS }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Ensure full history for diff
+
+      - name: Get changed apps
+        run: |
+          BASE_BRANCH=$(git merge-base origin/master HEAD)
+          APPS=$(git diff --name-only $BASE_BRANCH HEAD | grep -E '^apps/|^submodules/' | cut -d '/' -f2 | sort -u | jq -R -s -c 'split("\n")[:-1]')
+          echo "Detected changed apps: $APPS"
+          echo "APPS=$APPS" >> $GITHUB_ENV
+  update-kustomization:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    if: ${{ needs.detect-changes.outputs.changed_apps != '[]' }}
+    strategy:
+      matrix:
+        app: ${{ fromJson(needs.detect-changes.outputs.changed_apps) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Get latest commit SHA
+        id: vars
+        run: echo "SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+    
+    
+      - name: Update kustomization.yml using fjogeleit/yaml-update-action
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          valueFile: "k8s/overlays/prod/kustomization.yml"
+          propertyPath: "images[?(@.name=='345594578285.dkr.ecr.eu-west-1.amazonaws.com/airwayz/${{ matrix.app }}')].newTag"
+          value: ${{ env.SHA }}
+          createPR: true 
+          message: "Update image tag for ${{ matrix.app }} to ${{ env.SHA }}"
+          token: ${{ secrets.GITHUB_TOKEN }} 
+          targetBranch: test-deployment
+   
