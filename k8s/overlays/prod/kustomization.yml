@@ -1,3 +1,5 @@
 images:
   - name: 345594578285.dkr.ecr.eu-west-1.amazonaws.com/airwayz/some-app
-    newTag: 959ffd8
+    newTag: 0ff3233
+  - name: 345594578285.dkr.ecr.eu-west-1.amazonaws.com/airwayz/another_app
+    newTag: 12233
